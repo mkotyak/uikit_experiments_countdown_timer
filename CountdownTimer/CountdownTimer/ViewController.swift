@@ -21,22 +21,27 @@ class ViewController: UIViewController {
     }()
     
     private lazy var timerLable: UILabel = {
-        let label = UILabel(frame: CGRectMake(100, 100, 100, 100))
-        
-        label.textColor = .black
+        let label = UILabel()
         label.text = "\(remaningTime)"
+        label.font = UIFont.boldSystemFont(ofSize: 26)
+        label.textColor = .black
+        label.translatesAutoresizingMaskIntoConstraints = false
         
         return label
     }()
     
     private lazy var startTimerAction: UIAction = .init { [weak self] _ in
-        self?.timer = .scheduledTimer(
-            withTimeInterval: 1.0,
-            repeats: true,
-            block: { [weak self] _ in
-                self?.updateTimer()
-            }
-        )
+        guard let self else {
+            return
+        }
+        
+        let timer = Timer(timeInterval: 1.0,
+                          target: self,
+                          selector: #selector(self.updateRemaningTime),
+                          userInfo: nil,
+                          repeats: true)
+        
+        RunLoop.current.add(timer, forMode: .common)
     }
     
     override func viewDidLoad() {
@@ -71,12 +76,13 @@ class ViewController: UIViewController {
         ])
     }
     
-    private func updateTimer() {
+    @objc private func updateRemaningTime() {
         guard remaningTime > 0 else {
             timer?.invalidate()
             return
         }
         
         remaningTime -= 1
+        timerLable.text = "\(remaningTime)"
     }
 }
